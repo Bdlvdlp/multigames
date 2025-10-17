@@ -1,0 +1,51 @@
+[gd_scene load_steps=7 format=3 uid="uid://cccww3c0g30wn"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0igb1"]
+albedo_color = Color(0.2901961, 0.21568628, 0.15686275, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_eh0jp"]
+material = SubResource("StandardMaterial3D_0igb1")
+size = Vector3(10, 0.1, 10)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_e5u37"]
+size = Vector3(10, 0.1, 10)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2q24w"]
+albedo_color = Color(0.8235294, 0.7058824, 0.54901963, 1)
+roughness = 0.2
+
+[sub_resource type="BoxMesh" id="BoxMesh_h1y1r"]
+material = SubResource("StandardMaterial3D_2q24w")
+size = Vector3(4.5, 0.05, 1.5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_kwe0p"]
+size = Vector3(4.5, 0.05, 1.5)
+
+[node name="BarPalet" type="Node3D"]
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.90630776, 0.42261827, 0, -0.42261827, 0.90630776, 0, 3, 5)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.8660254, -0.35355338, 0.35355338, 0, 0.70710677, 0.70710677, -0.5, -0.6123724, 0.6123724, 0, 0, 0)
+light_color = Color(1, 0.95686275, 0.9019608, 1)
+light_energy = 0.8
+
+[node name="SolBar" type="StaticBody3D" parent="."]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="SolBar"]
+mesh = SubResource("BoxMesh_eh0jp")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SolBar"]
+shape = SubResource("BoxShape3D_e5u37")
+
+[node name="PistePalet" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+
+[node name="StaticBody3D" type="StaticBody3D" parent="PistePalet"]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="PistePalet/StaticBody3D"]
+mesh = SubResource("BoxMesh_h1y1r")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="PistePalet/StaticBody3D"]
+shape = SubResource("BoxShape3D_kwe0p")
