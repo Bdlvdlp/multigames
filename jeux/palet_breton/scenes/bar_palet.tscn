@@ -1,6 +1,10 @@
-[gd_scene load_steps=15 format=3 uid="uid://cccww3c0g30wn"]
+[gd_scene load_steps=27 format=3 uid="uid://cccww3c0g30wn"]
 
+[ext_resource type="Script" uid="uid://c675ypek6aeei" path="res://jeux/palet_breton/scripts/gestionnaire_partie.gd" id="1_2q24w"]
 [ext_resource type="PackedScene" uid="uid://dodi5xmqua06d" path="res://jeux/palet_breton/scenes/hud_lander.tscn" id="1_eh0jp"]
+[ext_resource type="Script" uid="uid://yhnq7awi7b7v" path="res://jeux/palet_breton/scripts/controleur_lancer.gd" id="2_e5u37"]
+[ext_resource type="PackedScene" uid="uid://bsfyxu5jaf4se" path="res://jeux/palet_breton/scenes/palet.tscn" id="2_kwe0p"]
+[ext_resource type="PackedScene" uid="uid://boovko6cltagr" path="res://jeux/palet_breton/scenes/maitre.tscn" id="3_qy6ea"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0igb1"]
 albedo_color = Color(0.2901961, 0.21568628, 0.15686275, 1)
@@ -18,46 +22,84 @@ roughness = 0.2
 
 [sub_resource type="BoxMesh" id="BoxMesh_h1y1r"]
 material = SubResource("StandardMaterial3D_2q24w")
-size = Vector3(4.5, 0.05, 1.5)
+size = Vector3(1.2, 0.05, 8)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_kwe0p"]
-size = Vector3(4.5, 0.05, 1.5)
+size = Vector3(1.2, 0.05, 8)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_eh0jp"]
 albedo_color = Color(0.39607844, 0.2627451, 0.12941177, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_e5u37"]
 material = SubResource("StandardMaterial3D_eh0jp")
-size = Vector3(4.5, 0.08, 0.03)
+size = Vector3(0.03, 0.08, 8)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_h1y1r"]
 albedo_color = Color(0.39607844, 0.2627451, 0.12941177, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_kwe0p"]
 material = SubResource("StandardMaterial3D_h1y1r")
-size = Vector3(0.03, 0.08, 1.5)
+size = Vector3(1.2, 0.08, 0.03)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qy6ea"]
 albedo_color = Color(0.75686276, 0.6039216, 0.41960785, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_c88pa"]
 material = SubResource("StandardMaterial3D_qy6ea")
-size = Vector3(0.5, 0.02, 0.5)
+size = Vector3(0.65, 0.03, 0.65)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_0igb1"]
-size = Vector3(0.5, 0.02, 0.5)
+size = Vector3(0.68, 0.055, 0.68)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mur_fond"]
+albedo_color = Color(0.82, 0.75, 0.65, 1)
+roughness = 0.8
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mur_cote"]
+albedo_color = Color(0.78, 0.72, 0.62, 1)
+roughness = 0.8
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_comptoir_bois"]
+albedo_color = Color(0.4, 0.28, 0.18, 1)
+roughness = 0.5
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_comptoir_dessus"]
+albedo_color = Color(0.35, 0.25, 0.15, 1)
+metallic = 0.3
+roughness = 0.3
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_porte"]
+albedo_color = Color(0.55, 0.35, 0.2, 1)
+roughness = 0.6
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_panneau_wc"]
+albedo_color = Color(0.9, 0.9, 0.85, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tableau"]
+albedo_color = Color(0.25, 0.2, 0.15, 1)
+metallic = 0.1
+roughness = 0.4
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_affiche"]
+albedo_color = Color(0.85, 0.7, 0.45, 1)
+roughness = 0.7
 
 [node name="BarPalet" type="Node3D"]
+script = ExtResource("1_2q24w")
+scene_palet = ExtResource("2_kwe0p")
+scene_maitre = ExtResource("3_qy6ea")
 
 [node name="ZoneLancement" type="Marker3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.3, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, -1.5)
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 2, 1, 0)
-far = 10.0
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1.0000002, 0, 8.742278e-08, 0, -1.0000002, 0, 1.3, -1.5)
+fov = 60.0
+near = 0.01
+far = 25.0
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.8660254, -0.35355338, 0.35355338, 0, 0.70710677, 0.70710677, -0.5, -0.6123724, 0.6123724, 0, 0, 0)
+transform = Transform3D(0.8660254, -0.3535534, 0.3535534, 0, 0.7071068, 0.7071068, -0.5, -0.61237246, 0.61237246, 0, 3.7467527, 0)
 light_color = Color(1, 0.95686275, 0.9019608, 1)
 light_energy = 0.8
 
@@ -69,6 +111,7 @@ mesh = SubResource("BoxMesh_eh0jp")
 metadata/_edit_lock_ = true
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="SolBar"]
+visible = false
 shape = SubResource("BoxShape3D_e5u37")
 metadata/_edit_lock_ = true
 
@@ -82,35 +125,106 @@ mesh = SubResource("BoxMesh_h1y1r")
 metadata/_edit_lock_ = true
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="PistePalet/StaticBody3D"]
+visible = false
 shape = SubResource("BoxShape3D_kwe0p")
 metadata/_edit_lock_ = true
 
 [node name="Bordure1" type="MeshInstance3D" parent="PistePalet"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.065, 0.7358238)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.58567953, 0.065, 0)
 mesh = SubResource("BoxMesh_e5u37")
 
 [node name="Bordure2" type="MeshInstance3D" parent="PistePalet"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.781495e-05, 0.065, -0.7396469)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.58543515, 0.065, 0)
 mesh = SubResource("BoxMesh_e5u37")
 skeleton = NodePath("../Bordure1")
 
 [node name="Bordure3" type="MeshInstance3D" parent="PistePalet"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.254, 0.065, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.065, 3.9853754)
 mesh = SubResource("BoxMesh_kwe0p")
 
 [node name="Planche" type="Node3D" parent="PistePalet"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2, 0.05, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 3.5)
 
 [node name="PlateauPlanche" type="StaticBody3D" parent="PistePalet/Planche"]
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="PistePalet/Planche/PlateauPlanche"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.7, 0, 0)
 mesh = SubResource("BoxMesh_c88pa")
 metadata/_edit_lock_ = true
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="PistePalet/Planche/PlateauPlanche"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.7, 0, 0)
 shape = SubResource("BoxShape3D_0igb1")
 metadata/_edit_lock_ = true
 
 [node name="HudLancer" parent="." instance=ExtResource("1_eh0jp")]
+
+[node name="ControleurLancer" type="Node3D" parent="."]
+script = ExtResource("2_e5u37")
+
+[node name="DecorationBar" type="Node3D" parent="."]
+
+[node name="MurFond" type="CSGBox3D" parent="DecorationBar"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 5)
+use_collision = true
+size = Vector3(10, 3, 0.2)
+material = SubResource("StandardMaterial3D_mur_fond")
+
+[node name="MurGauche" type="CSGBox3D" parent="DecorationBar"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 1.5, 0)
+size = Vector3(0.2, 3, 10)
+material = SubResource("StandardMaterial3D_mur_cote")
+
+[node name="MurDroit" type="CSGBox3D" parent="DecorationBar"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1.5, 0)
+size = Vector3(0.2, 3, 10)
+material = SubResource("StandardMaterial3D_mur_cote")
+
+[node name="Comptoir" type="Node3D" parent="DecorationBar"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0.57520545, 3.376824)
+
+[node name="SocleComptoir" type="CSGBox3D" parent="DecorationBar/Comptoir"]
+size = Vector3(1.8, 1.2, 0.6)
+material = SubResource("StandardMaterial3D_comptoir_bois")
+
+[node name="PlatComptoir" type="CSGBox3D" parent="DecorationBar/Comptoir"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.65, 0)
+size = Vector3(2, 0.1, 0.7)
+material = SubResource("StandardMaterial3D_comptoir_dessus")
+
+[node name="PorteToilettes" type="Node3D" parent="DecorationBar"]
+transform = Transform3D(-0.99999994, 0, -8.742277e-08, 0, 1, 0, 8.742277e-08, 0, -0.99999994, -4.8526993, 0.87540483, 4)
+
+[node name="Porte" type="CSGBox3D" parent="DecorationBar/PorteToilettes"]
+size = Vector3(0.05, 2, 0.8)
+material = SubResource("StandardMaterial3D_porte")
+
+[node name="Panneau" type="CSGBox3D" parent="DecorationBar/PorteToilettes"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.1, 0.8, 0)
+size = Vector3(0.02, 0.3, 0.4)
+material = SubResource("StandardMaterial3D_panneau_wc")
+
+[node name="Tableau1" type="CSGBox3D" parent="DecorationBar"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5, 2, 4.9)
+size = Vector3(1.2, 0.9, 0.05)
+material = SubResource("StandardMaterial3D_tableau")
+
+[node name="Tableau2" type="CSGBox3D" parent="DecorationBar"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 2.2, 4.9)
+size = Vector3(0.8, 0.6, 0.05)
+material = SubResource("StandardMaterial3D_tableau")
+
+[node name="Affiche" type="CSGBox3D" parent="DecorationBar"]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -4.9, 2, -2)
+size = Vector3(0.6, 0.8, 0.02)
+material = SubResource("StandardMaterial3D_affiche")
+
+[node name="LumiereComptoir" type="OmniLight3D" parent="DecorationBar"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 2.5, -3)
+light_color = Color(1, 0.9, 0.7, 1)
+light_energy = 0.5
+omni_range = 3.0
+
+[node name="LumiereAmbiance" type="OmniLight3D" parent="DecorationBar"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 0)
+light_color = Color(1, 0.95, 0.85, 1)
+light_energy = 0.3
+omni_range = 8.0

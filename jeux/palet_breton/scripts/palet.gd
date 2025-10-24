@@ -40,14 +40,30 @@ func _appliquer_couleur() -> void:
 
 func lancer(direction: Vector3, force: float) -> void:
 	#Lance le palet dans une direction avec une force donnée
+	print("=== LANCER PALET ===")
+	print("Position: %s" % global_position)
+	print("Direction: %s, Force: %.2f" % [direction, force])
+	
+	# Activer physique
 	freeze = false
+	sleeping = false
+	
+	# Forcer l'activation avec reset complet
+	linear_velocity = Vector3.ZERO
+	angular_velocity = Vector3.ZERO
+	
 	est_lance = true
 	
-	# Appliquer l'impulsion
-	apply_impulse(direction.normalized() * force)
+	# Déplacer le palet à hauteur de lancer (1.1m)
+	global_position.y = 1.1
+	global_position.z=-1.5
 	
-	# Petite rotation pour effet visuel
-	apply_torque_impulse(Vector3(randf_range(-0.1, 0.1), randf_range(-0.1, 0.1), 0))
+	# Appliquer une vélocité réaliste (force / masse = accélération, puis * temps)
+	# Force de 10-60, masse 0.16kg, on divise par 5 pour avoir une vitesse en m/s réaliste
+	var velocite = direction.normalized() * (force / 5.0)
+	
+	print("Vélocité appliquée: %.2f m/s - %s" % [velocite.length(), velocite])
+	linear_velocity = velocite
 
 func _on_body_entered(body: Node) -> void:
 	if not est_lance:
@@ -58,19 +74,25 @@ func _on_body_entered(body: Node) -> void:
 		a_touche_sol = true
 		print("Palet %s invalide - a touché le sol" % ["BLEU" if couleur == CouleurPalet.BLEU else "ROUGE"])
 	
-	# Si le palet entre sur la planche
+	# Si le palet entre en collision avec la planche
 	elif body.name == "PlateauPlanche":
-		sur_planche = true
-		print("Palet %s est sur la planche !" % ["BLEU" if couleur == CouleurPalet.BLEU else "ROUGE"])
+		# Vérifier que le palet est bien AU-DESSUS de la planche (pas collé sur le côté)
+		# La planche fait 0.02m de haut, donc son dessus est à Y ≈ 0.16m
+		# Le palet fait 0.008m de haut, donc son centre doit être à Y ≈ 0.164m minimum
+		if global_position.y > 0.15:  # Marge de sécurité
+			sur_planche = true
+			print("Palet %s est sur la planche !" % ["BLEU" if couleur == CouleurPalet.BLEU else "ROUGE"])
+		else:
+			print("Palet %s a touché le CÔTÉ de la planche (invalide)" % ["BLEU" if couleur == CouleurPalet.BLEU else "ROUGE"])
 
 func _physics_process(_delta: float) -> void:
 	if est_lance and not freeze:
 		# Arrêter le palet s'il est presque immobile
-		if linear_velocity.length() < 0.05:
+		if linear_velocity.length() < 0.1:
 			freeze = true
 			linear_velocity = Vector3.ZERO
 			angular_velocity = Vector3.ZERO
-			print("Palet %s arrêté" % ["BLEU" if couleur == CouleurPalet.BLEU else "ROUGE"])
+			print("Palet arrêté à: %s" % global_position)
 
 func reinitialiser() -> void:
 	#Réinitialise le palet pour une nouvelle manche
@@ -80,3 +102,9 @@ func reinitialiser() -> void:
 	a_touche_sol = false
 	linear_velocity = Vector3.ZERO
 	angular_velocity = Vector3.ZERO
+
+func distance_au_maitre(maitre: Maitre) -> float:
+	#Calcule la distance du palet au maître
+	var distance_2d = Vector2(global_position.x - maitre.global_position.x, 
+							  global_position.z - maitre.global_position.z).length()
+	return distance_2d
