@@ -37,6 +37,117 @@ far = 2.0
 [node name="PanelMiniMap" type="Panel" parent="MiniMap"]
 layout_mode = 2
 
+[node name="CoursePoints" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -150.0
+offset_top = 20.0
+offset_right = 150.0
+offset_bottom = 120.0
+grow_horizontal = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="CoursePoints"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="CoursePoints/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="LabelTitre" type="Label" parent="CoursePoints/MarginContainer/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Course aux 5 points"
+horizontal_alignment = 1
+
+[node name="HBoxEchelle" type="HBoxContainer" parent="CoursePoints/MarginContainer/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 5
+alignment = 1
+
+[node name="IconeBleu" type="ColorRect" parent="CoursePoints/MarginContainer/VBox/HBoxEchelle"]
+custom_minimum_size = Vector2(25, 25)
+layout_mode = 2
+color = Color(0.2, 0.5, 1, 1)
+
+[node name="Point0" type="Label" parent="CoursePoints/MarginContainer/VBox/HBoxEchelle"]
+custom_minimum_size = Vector2(20, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "0"
+horizontal_alignment = 1
+
+[node name="Point1" type="Label" parent="CoursePoints/MarginContainer/VBox/HBoxEchelle"]
+custom_minimum_size = Vector2(20, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "1"
+horizontal_alignment = 1
+
+[node name="Point2" type="Label" parent="CoursePoints/MarginContainer/VBox/HBoxEchelle"]
+custom_minimum_size = Vector2(20, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "2"
+horizontal_alignment = 1
+
+[node name="Point3" type="Label" parent="CoursePoints/MarginContainer/VBox/HBoxEchelle"]
+custom_minimum_size = Vector2(20, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "3"
+horizontal_alignment = 1
+
+[node name="Point4" type="Label" parent="CoursePoints/MarginContainer/VBox/HBoxEchelle"]
+custom_minimum_size = Vector2(20, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "4"
+horizontal_alignment = 1
+
+[node name="Point5" type="Label" parent="CoursePoints/MarginContainer/VBox/HBoxEchelle"]
+custom_minimum_size = Vector2(20, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.843137, 0, 1)
+theme_override_font_sizes/font_size = 18
+text = "5"
+horizontal_alignment = 1
+
+[node name="IconeRouge" type="ColorRect" parent="CoursePoints/MarginContainer/VBox/HBoxEchelle"]
+custom_minimum_size = Vector2(25, 25)
+layout_mode = 2
+color = Color(1, 0.2, 0.2, 1)
+
+[node name="HBoxIndicateurs" type="HBoxContainer" parent="CoursePoints/MarginContainer/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 5
+alignment = 1
+
+[node name="LabelScoreMancheJ1" type="Label" parent="CoursePoints/MarginContainer/VBox/HBoxIndicateurs"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.5, 1, 1)
+theme_override_font_sizes/font_size = 24
+text = "0"
+horizontal_alignment = 1
+
+[node name="Separateur" type="Label" parent="CoursePoints/MarginContainer/VBox/HBoxIndicateurs"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "-"
+horizontal_alignment = 1
+
+[node name="LabelScoreMancheJ2" type="Label" parent="CoursePoints/MarginContainer/VBox/HBoxIndicateurs"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.2, 0.2, 1)
+theme_override_font_sizes/font_size = 24
+text = "0"
+horizontal_alignment = 1
+
 [node name="InfoJoueur1" type="PanelContainer" parent="."]
 layout_mode = 1
 anchors_preset = 2
@@ -175,8 +286,8 @@ layout_mode = 2
 
 [node name="HBoxPalets" type="HBoxContainer" parent="InfoJoueur2/MarginContainer/VBox"]
 layout_mode = 2
-alignment = 2
 theme_override_constants/separation = 15
+alignment = 2
 
 [node name="PaletsRestants" type="HBoxContainer" parent="InfoJoueur2/MarginContainer/VBox/HBoxPalets"]
 layout_mode = 2
@@ -210,8 +321,8 @@ horizontal_alignment = 2
 
 [node name="HBoxScore" type="HBoxContainer" parent="InfoJoueur2/MarginContainer/VBox"]
 layout_mode = 2
-alignment = 2
 theme_override_constants/separation = 10
+alignment = 2
 
 [node name="LabelScoreJ2" type="Label" parent="InfoJoueur2/MarginContainer/VBox/HBoxScore"]
 layout_mode = 2
@@ -231,9 +342,9 @@ anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
 offset_left = -300.0
-offset_top = 50.0
+offset_top = 167.0
 offset_right = 300.0
-offset_bottom = 120.0
+offset_bottom = 237.0
 grow_horizontal = 2
 theme_override_font_sizes/font_size = 32
 horizontal_alignment = 1
@@ -258,7 +369,7 @@ layout_mode = 2
 
 [node name="LabelInstructions" type="Label" parent="PanelContainer/VBoxContainer"]
 layout_mode = 2
-text = "Souris pour viser | ESPACE pour lancer"
+text = "Souris pour viser|maintenir ESPACE pour lancer"
 horizontal_alignment = 1
 
 [node name="BarreForce" type="ProgressBar" parent="PanelContainer/VBoxContainer"]

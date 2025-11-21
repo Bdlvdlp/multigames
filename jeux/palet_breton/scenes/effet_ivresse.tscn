@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3 uid="uid://ivresse_effect_scene"]
+
+[ext_resource type="Shader" path="res://jeux/palet_breton/shaders/ivresse.gdshader" id="1_shader"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ivresse"]
+shader = ExtResource("1_shader")
+shader_parameter/force_ivresse = 0.0
+
+[node name="EffetIvresse" type="CanvasLayer"]
+
+[node name="EcranIvresse" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_ivresse")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2

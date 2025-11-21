@@ -73,9 +73,11 @@ func _on_body_entered(body: Node) -> void:
 	if body.name == "SolBar":
 		a_touche_sol = true
 		print("Palet %s invalide - a touché le sol" % ["BLEU" if couleur == CouleurPalet.BLEU else "ROUGE"])
+		_jouer_son_impact()
 	
 	# Si le palet entre en collision avec la planche
 	elif body.name == "PlateauPlanche":
+		_jouer_son_impact()
 		# Vérifier que le palet est bien AU-DESSUS de la planche (pas collé sur le côté)
 		# La planche fait 0.02m de haut, donc son dessus est à Y ≈ 0.16m
 		# Le palet fait 0.008m de haut, donc son centre doit être à Y ≈ 0.164m minimum
@@ -84,15 +86,45 @@ func _on_body_entered(body: Node) -> void:
 			print("Palet %s est sur la planche !" % ["BLEU" if couleur == CouleurPalet.BLEU else "ROUGE"])
 		else:
 			print("Palet %s a touché le CÔTÉ de la planche (invalide)" % ["BLEU" if couleur == CouleurPalet.BLEU else "ROUGE"])
+	
+	# Collision avec un autre palet ou bordure
+	else:
+		_jouer_son_impact()
+
+func _jouer_son_impact() -> void:
+	var audio = $AudioImpact
+	if audio and not audio.playing:
+		audio.pitch_scale = randf_range(0.9, 1.1)
+		audio.play()
 
 func _physics_process(_delta: float) -> void:
 	if est_lance and not freeze:
+		# Vérifier si le palet est sur la planche (détection continue)
+		if not sur_planche:
+			_verifier_position_sur_planche()
+		
 		# Arrêter le palet s'il est presque immobile
-		if linear_velocity.length() < 0.1:
+		if linear_velocity.length() < 0.15:
 			freeze = true
 			linear_velocity = Vector3.ZERO
 			angular_velocity = Vector3.ZERO
 			print("Palet arrêté à: %s" % global_position)
+
+func _verifier_position_sur_planche() -> void:
+	#Vérifie en continu si le palet est sur la planche (par position)
+	# Position planche : centre à (0, 0.145, 3.5), taille 65cm x 65cm
+	var planche_y = 0.145
+	var planche_z = 3.5
+	var planche_demi_taille = 0.325  # 65cm / 2
+	
+	# Vérifier si le palet est à la bonne hauteur (au-dessus de la planche)
+	if global_position.y > planche_y - 0.02 and global_position.y < planche_y + 0.05:
+		# Vérifier si le palet est dans les limites X/Z de la planche
+		if abs(global_position.x) <= planche_demi_taille + 0.02:  # +2cm de marge
+			if abs(global_position.z - planche_z) <= planche_demi_taille + 0.02:
+				if not sur_planche:
+					sur_planche = true
+					print("Palet %s détecté sur la planche (position continue)" % ["BLEU" if couleur == CouleurPalet.BLEU else "ROUGE"])
 
 func reinitialiser() -> void:
 	#Réinitialise le palet pour une nouvelle manche

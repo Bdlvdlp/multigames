@@ -66,13 +66,33 @@ func _on_body_exited(body: Node) -> void:
 	if not est_lance:
 		return
 	
-	# Si le maître quitte la planche pendant la partie = annulation
+	# Si le maître quitte la planche pendant la partie
+	# On ne marque hors_planche que s'il est vraiment en mouvement rapide (chute)
+	# ET s'il est vraiment sorti de la zone de la planche
 	if body.name == "PlateauPlanche" and sur_planche:
-		hors_planche = true
-		print("ATTENTION : Maître hors de la planche - Partie annulée !")
+		# Vérifier la vélocité ET la position
+		var vel = linear_velocity.length()
+		
+		# Vérifier si le maître est vraiment hors des limites de la planche
+		var planche_z = 3.5
+		var planche_demi_taille = 0.35  # 65cm / 2 + marge
+		var est_hors_limites = (abs(global_position.x) > planche_demi_taille or 
+								abs(global_position.z - planche_z) > planche_demi_taille or
+								global_position.y < 0.12)  # Tombé en dessous de la planche
+		
+		# Ne marquer hors planche que si mouvement rapide ET hors limites
+		if vel > 0.3 and est_hors_limites:
+			hors_planche = true
+			print("ATTENTION : Maître vraiment sorti de la planche (vel: %.2f, pos: %s)" % [vel, global_position])
+		else:
+			print("body_exited ignoré (maître toujours sur planche - vel: %.2f, pos: %s)" % [vel, global_position])
 
 func _physics_process(_delta: float) -> void:
 	if est_lance and not freeze:
+		# Vérifier si le maître est sur la planche (détection continue)
+		if not sur_planche:
+			_verifier_position_sur_planche()
+		
 		var vel = linear_velocity.length()
 		
 		# Debug: afficher vélocité régulièrement
@@ -80,11 +100,27 @@ func _physics_process(_delta: float) -> void:
 			print("Maître en mouvement - Vel: %.2f, Pos: %s" % [vel, global_position])
 		
 		# Arrêter le maître s'il est presque immobile
-		if vel < 0.05:
+		if vel < 0.15:
 			freeze = true
 			linear_velocity = Vector3.ZERO
 			angular_velocity = Vector3.ZERO
 			print("Maître arrêté")
+
+func _verifier_position_sur_planche() -> void:
+	#Vérifie en continu si le maître est sur la planche (par position)
+	# Position planche : centre à (0, 0.145, 3.5), taille 65cm x 65cm
+	var planche_y = 0.145
+	var planche_z = 3.5
+	var planche_demi_taille = 0.325  # 65cm / 2
+	
+	# Vérifier si le maître est à la bonne hauteur (au-dessus de la planche)
+	if global_position.y > planche_y - 0.02 and global_position.y < planche_y + 0.05:
+		# Vérifier si le maître est dans les limites X/Z de la planche
+		if abs(global_position.x) <= planche_demi_taille + 0.02:  # +2cm de marge
+			if abs(global_position.z - planche_z) <= planche_demi_taille + 0.02:
+				if not sur_planche:
+					sur_planche = true
+					print("Maître détecté sur la planche (position continue)")
 
 func reinitialiser() -> void:
 	#Réinitialise le maître pour une nouvelle manche
@@ -106,29 +142,27 @@ func est_vraiment_sur_planche() -> bool:
 	"""Vérifie si le maître est réellement sur la planche après l'arrêt"""
 	# Vérifier que le maître a bien touché la planche à un moment
 	if not sur_planche:
+		print("⚠️ Maître n'a jamais touché la planche")
 		return false
 	
-	# Vérifier qu'il n'est pas sorti
-	if hors_planche:
-		print("⚠️ Maître sorti de la planche après glissement")
-		return false
+	# Vérifier la position finale plutôt que le flag hors_planche
+	# Car body_exited peut se déclencher par erreur
+	var planche_z = 3.5
+	var planche_demi_taille = 0.345  # 65cm / 2 + tolérance
 	
-	# Vérifier que la position Y est correcte (au-dessus de la planche)
-	if global_position.y < 0.15:
+	# Vérifier position Y (au-dessus de la planche)
+	if global_position.y < 0.14:
 		print("⚠️ Maître pas au-dessus de la planche (Y=%.3f)" % global_position.y)
 		return false
 	
-	# Vérifier que le maître est dans les limites X/Z de la planche
-	# Planche 65cm x 65cm centrée à (0, ?, 3.5)
-	var planche_demi_taille = 0.325  # 65cm / 2
-	var pos_planche_z = 3.5
-	
+	# Vérifier limites X/Z
 	if abs(global_position.x) > planche_demi_taille:
 		print("⚠️ Maître hors limites X (X=%.3f)" % global_position.x)
 		return false
 	
-	if abs(global_position.z - pos_planche_z) > planche_demi_taille:
-		print("⚠️ Maître hors limites Z (Z=%.3f)" % global_position.z)
+	if abs(global_position.z - planche_z) > planche_demi_taille:
+		print("⚠️ Maître hors limites Z (Z=%.3f, distance=%.3f)" % [global_position.z, abs(global_position.z - planche_z)])
 		return false
 	
+	print("✓ Maître validé sur la planche (pos: %s)" % global_position)
 	return true

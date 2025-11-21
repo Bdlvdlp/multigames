@@ -39,9 +39,33 @@ var direction_lancer: Vector3 = Vector3.FORWARD
 ## Signal émis quand un palet est lancé
 signal palet_lance(palet: RigidBody3D, force: float, direction: Vector3)
 
+## Référence au barman
+var barman: Node3D
+
 func _ready() -> void:
 	# Capturer la souris pour qu'elle ne sorte pas de la fenêtre
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	
+	# Forcer le mapping de la touche E (au cas où)
+	if not InputMap.has_action("interagir"):
+		InputMap.add_action("interagir")
+		var ev = InputEventKey.new()
+		ev.physical_keycode = KEY_E
+		InputMap.action_add_event("interagir", ev)
+	
+	# Tenter de trouver le barman
+	# 1. Chercher un noeud "Barman" frère
+	if get_parent().has_node("Barman"):
+		barman = get_parent().get_node("Barman")
+		print("Controleur: Barman trouvé par nom.")
+	
+	# NE PAS connecter le signal biere_servie ici
+	# (la gestion est faite directement dans gestionnaire_partie.gd pour éviter
+	# que le mauvais joueur boive à cause du changement de joueur_actuel)
+	if not barman:
+		print("Controleur: ERREUR CRITIQUE - Barman introuvable dans la scène !")
+	else:
+		print("Controleur: Barman trouvé et prêt")
 
 func preparer_lancer(palet: RigidBody3D) -> void:
 	"""Prépare le lancer d'un palet"""
@@ -57,19 +81,37 @@ func preparer_lancer(palet: RigidBody3D) -> void:
 	# Direction initiale vers la planche (forward = +Z dans Godot)
 	_calculer_direction()
 	
-	print("Prêt à lancer - Bougez la souris pour viser (X=horizontal, Y=vertical)")
-	print("Appuyez sur ECHAP pour libérer la souris")
+	print("Prêt à lancer - Bougez la souris pour viser")
+	print("Appuyez sur E pour appeler le barman")
+
+func definir_joueur_actuel(numero_joueur: int) -> void:
+	"""Définit quel joueur est en train de jouer (1 ou 2)"""
+	joueur_actuel = numero_joueur
+	print("Controleur: Joueur actuel = %d" % joueur_actuel)
 
 func _input(event: InputEvent) -> void:
 	# Gérer ECHAP pour libérer/capturer la souris
 	if event.is_action_pressed("ui_cancel"):  # ECHAP
 		if Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
 			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-			print("Souris libérée")
 		else:
 			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-			print("Souris capturée")
 		return
+	
+	# Interaction avec le barman (Touche E)
+	if event.is_action_pressed("interagir"):
+		if barman:
+			if barman.has_method("servir_joueur"):
+				barman.servir_joueur(self)
+			else:
+				print("Erreur: Le barman n'a pas la méthode servir_joueur")
+		else:
+			# Tentative de reconnexion de dernière minute
+			if get_parent().has_node("Barman"):
+				barman = get_parent().get_node("Barman")
+				barman.servir_joueur(self)
+			else:
+				print("Erreur: Toujours pas de barman !")
 	
 	if palet_actuel == null:
 		return
@@ -95,6 +137,18 @@ func _calculer_direction() -> void:
 	var h_rad = deg_to_rad(angle_horizontal)
 	var v_rad = deg_to_rad(angle_vertical)
 	
+	# Application de l'ivresse (bruit)
+	var taux_ivresse = taux_ivresse_joueurs.get(joueur_actuel, 0.0)
+	var noise_time = noise_time_joueurs.get(joueur_actuel, 0.0)
+	if taux_ivresse > 0.0:
+		var shake_amount = taux_ivresse * 10.0 # Degrés de tremblement max
+		# Utilisation de sin/cos combinés pour un effet pseudo-aléatoire fluide
+		var noise_h = sin(noise_time * 5.0) * cos(noise_time * 3.7) * shake_amount
+		var noise_v = cos(noise_time * 4.2) * sin(noise_time * 2.9) * shake_amount
+		
+		h_rad += deg_to_rad(noise_h)
+		v_rad += deg_to_rad(noise_v)
+	
 	# Direction de BASE : vers la planche = +Z dans notre scène
 	# Pour une visée plus intuitive, on utilise une approche linéaire
 	# au lieu de purement trigonométrique
@@ -106,6 +160,10 @@ func _calculer_direction() -> void:
 	# Facteur de 0.15 pour limiter la déviation (réduit de 0.5 à 0.15)
 	var x = -h_normalized * 0.15  # Déviation latérale très réduite
 	
+	# Si ivresse, on ajoute aussi du bruit sur X directement pour plus d'imprédictibilité
+	if taux_ivresse > 0.0:
+		x += sin(noise_time * 8.0) * 0.05 * taux_ivresse
+	
 	# Composante Y pour le tir en cloche (garde le sin pour la parabole)
 	var y = sin(v_rad)
 	
@@ -116,11 +174,56 @@ func _calculer_direction() -> void:
 	
 	# Debug
 	if palet_actuel != null:
-		print("Direction calculée: X:%.2f Y:%.2f Z:%.2f (H:%.1f° V:%.1f°)" % [
-			x, y, z, angle_horizontal, angle_vertical
-		])
+		# print("Direction calculée: X:%.2f Y:%.2f Z:%.2f (H:%.1f° V:%.1f°)" % [
+		# 	x, y, z, angle_horizontal, angle_vertical
+		# ])
+		pass
+
+## Taux d'ivresse par joueur (0.0 à 1.0+)
+var taux_ivresse_joueurs: Dictionary = {1: 0.0, 2: 0.0}
+
+## Temps pour le bruit de Perlin par joueur
+var noise_time_joueurs: Dictionary = {1: 0.0, 2: 0.0}
+
+## Joueur actuel (sera mis à jour par le gestionnaire)
+var joueur_actuel: int = 1
+
+var visual_effect_active: bool = false
+var shader_material: ShaderMaterial
 
 func _process(delta: float) -> void:
+	# Gestion de l'ivresse pour chaque joueur
+	for joueur_id in [1, 2]:
+		if taux_ivresse_joueurs[joueur_id] > 0:
+			noise_time_joueurs[joueur_id] += delta
+			# Diminution lente de l'ivresse avec le temps
+			taux_ivresse_joueurs[joueur_id] = max(0.0, taux_ivresse_joueurs[joueur_id] - delta * 0.01)  # 0.05 par seconde
+	
+	# Recalculer la direction pour le joueur actuel si ivre
+	if taux_ivresse_joueurs.get(joueur_actuel, 0.0) > 0:
+		_calculer_direction()
+	
+	# Mise à jour de l'effet visuel (seulement pour le joueur actuel)
+	var taux_actuel = taux_ivresse_joueurs.get(joueur_actuel, 0.0)
+	if taux_actuel > 0 or (taux_actuel == 0.0 and visual_effect_active):
+		_update_visual_effect()
+	
+	# Interaction avec le barman (Touche E)
+	if Input.is_action_just_pressed("interagir"):
+		print("Input 'interagir' détecté !")
+		if barman:
+			print("Barman trouvé, appel de servir_joueur")
+			if barman.has_method("servir_joueur"):
+				barman.servir_joueur(self)
+			else:
+				print("Erreur: Le barman n'a pas la méthode servir_joueur")
+		else:
+			print("Erreur: Pas de référence au barman")
+	
+	# Debug temporaire pour voir toutes les touches
+	if Input.is_key_pressed(KEY_E):
+		print("Touche E physique pressée (via is_key_pressed)")
+
 	if palet_actuel == null:
 		return
 	
@@ -135,6 +238,29 @@ func _process(delta: float) -> void:
 	# Relâcher ESPACE pour lancer
 	if Input.is_action_just_released("ui_accept") and est_en_train_de_viser:
 		_lancer_palet()
+
+func _update_visual_effect() -> void:
+	if not shader_material:
+		# Essayer de récupérer le material du ColorRect
+		var effet_node = get_parent().get_node_or_null("EffetIvresse/EcranIvresse")
+		if effet_node and effet_node is ColorRect:
+			shader_material = effet_node.material as ShaderMaterial
+	
+	if shader_material:
+		var taux_actuel = taux_ivresse_joueurs.get(joueur_actuel, 0.0)
+		shader_material.set_shader_parameter("force_ivresse", taux_actuel)
+		visual_effect_active = (taux_actuel > 0.0)
+
+func boire_biere() -> void:
+	print("Glou glou glou... Hips !")
+	taux_ivresse_joueurs[joueur_actuel] += 2
+	print("Joueur %d - Taux d'ivresse: %.2f" % [joueur_actuel, taux_ivresse_joueurs[joueur_actuel]])
+
+func boire_biere_force(numero_joueur: int) -> void:
+	#Fait boire un joueur spécifique (utilisé par le gestionnaire de partie)
+	print("Le joueur %d boit une bière (forcé) !" % numero_joueur)
+	taux_ivresse_joueurs[numero_joueur] += 2.0
+	print("Joueur %d - Taux d'ivresse: %.2f" % [numero_joueur, taux_ivresse_joueurs[numero_joueur]])
 
 func _lancer_palet() -> void:
 	#Lance le palet avec la force chargé

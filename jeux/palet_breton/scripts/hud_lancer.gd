@@ -9,8 +9,13 @@ class_name HudLancer
 @onready var reticule: Control = $Reticule
 @onready var label_message: Label = $LabelMessage
 
+## Course aux points
+@onready var label_score_manche_j1: Label = $CoursePoints/MarginContainer/VBox/HBoxIndicateurs/LabelScoreMancheJ1
+@onready var label_score_manche_j2: Label = $CoursePoints/MarginContainer/VBox/HBoxIndicateurs/LabelScoreMancheJ2
+
 ## Joueur 1
 @onready var label_score_j1: Label = $InfoJoueur1/MarginContainer/VBox/HBoxScore/LabelScoreJ1
+@onready var label_nom_j1: Label = $InfoJoueur1/MarginContainer/VBox/HBoxNom/LabelNomJ1
 @onready var palet1_j1: ColorRect = $InfoJoueur1/MarginContainer/VBox/HBoxPalets/PaletsRestants/Palet1J1
 @onready var palet2_j1: ColorRect = $InfoJoueur1/MarginContainer/VBox/HBoxPalets/PaletsRestants/Palet2J1
 @onready var palet3_j1: ColorRect = $InfoJoueur1/MarginContainer/VBox/HBoxPalets/PaletsRestants/Palet3J1
@@ -19,6 +24,7 @@ class_name HudLancer
 
 ## Joueur 2
 @onready var label_score_j2: Label = $InfoJoueur2/MarginContainer/VBox/HBoxScore/LabelScoreJ2
+@onready var label_nom_j2: Label = $InfoJoueur2/MarginContainer/VBox/HBoxNom/LabelNomJ2
 @onready var palet1_j2: ColorRect = $InfoJoueur2/MarginContainer/VBox/HBoxPalets/PaletsRestants/Palet1J2
 @onready var palet2_j2: ColorRect = $InfoJoueur2/MarginContainer/VBox/HBoxPalets/PaletsRestants/Palet2J2
 @onready var palet3_j2: ColorRect = $InfoJoueur2/MarginContainer/VBox/HBoxPalets/PaletsRestants/Palet3J2
@@ -27,6 +33,10 @@ class_name HudLancer
 
 var palets_j1: Array[ColorRect] = []
 var palets_j2: Array[ColorRect] = []
+
+# Noms des joueurs (pour l'affichage des messages)
+var nom_j1: String = "Joueur 1"
+var nom_j2: String = "Joueur 2"
 
 func _ready() -> void:
 	# Configurer la barre de progression
@@ -43,6 +53,12 @@ func _ready() -> void:
 	visible = true
 	
 	print("HUD initialisé - Mini-map active")
+
+func mettre_a_jour_noms(nom1: String, nom2: String) -> void:
+	nom_j1 = nom1
+	nom_j2 = nom2
+	label_nom_j1.text = nom1
+	label_nom_j2.text = nom2
 
 func afficher_visee() -> void:
 	visible = true
@@ -111,9 +127,14 @@ func mettre_a_jour_joueur(numero_joueur: int, palets_restants: int, _palets_tota
 			palets_array[i].modulate = Color(1, 1, 1, 0.2)  # Grisé/utilisé
 
 func mettre_a_jour_scores(score1: int, score2: int) -> void:
-	"""Met à jour l'affichage des scores"""
-	label_score_j1.text = str(score1)
-	label_score_j2.text = str(score2)
+	"""Met à jour l'affichage des scores (manches gagnées)"""
+	label_score_j1.text = "%d/2" % score1
+	label_score_j2.text = "%d/2" % score2
+
+func mettre_a_jour_scores_manche(points_j1: int, points_j2: int) -> void:
+	"""Met à jour les points de la manche en cours (0-7)"""
+	label_score_manche_j1.text = str(points_j1)
+	label_score_manche_j2.text = str(points_j2)
 
 func afficher_message(message: String, duree: float = 3.0) -> void:
 	#Affiche un message temporaire au centre de l'écran
@@ -128,13 +149,13 @@ func afficher_message(message: String, duree: float = 3.0) -> void:
 func afficher_fin_manche(score1: int, score2: int, gagnant: int, points: int) -> void:
 	#Affiche le résultat de la manche sur le HUD
 	var msg = "=== FIN DE MANCHE ===\n"
-	msg += "Score Joueur 1: %d\nScore Joueur 2: %d\n" % [score1, score2]
+	msg += "Points : %s = %d | %s = %d\n" % [nom_j1, score1, nom_j2, score2]
 	if gagnant == 0:
 		msg += "Égalité - aucun point marqué"
 	elif gagnant == 1:
-		msg += "Joueur 1 (🔵) gagne %d point%s !" % [points, ("s" if points > 1 else "")]
+		msg += "%s (🔵) marque %d point%s !" % [nom_j1, points, ("s" if points > 1 else "")]
 	else:
-		msg += "Joueur 2 (🔴) gagne %d point%s !" % [points, ("s" if points > 1 else "")]
+		msg += "%s (🔴) marque %d point%s !" % [nom_j2, points, ("s" if points > 1 else "")]
 	label_message.text = msg
 	label_message.visible = true
 	await get_tree().create_timer(4.0).timeout
@@ -144,11 +165,11 @@ func afficher_fin_manche(score1: int, score2: int, gagnant: int, points: int) ->
 func afficher_fin_partie(score1: int, score2: int) -> void:
 	# Affiche la fin de partie sur le HUD
 	var msg = "=== FIN DE PARTIE ===\n"
-	msg += "Score final :\nJoueur 1 (🔵) : %d\nJoueur 2 (🔴) : %d\n" % [score1, score2]
+	msg += "Manches gagnées :\n%s (🔵) : %d\n%s (🔴) : %d\n\n" % [nom_j1, score1, nom_j2, score2]
 	if score1 > score2:
-		msg += "Victoire Joueur 1 !"
+		msg += "🏆 %s remporte la partie ! 🏆" % nom_j1
 	elif score2 > score1:
-		msg += "Victoire Joueur 2 !"
+		msg += "🏆 %s remporte la partie ! 🏆" % nom_j2
 	else:
 		msg += "Match nul !"
 	label_message.text = msg

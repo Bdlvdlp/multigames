@@ -1,0 +1,54 @@
+[gd_scene load_steps=2 format=3 uid="uid://b8q4x2y5z1w3"]
+
+[ext_resource type="Script" path="res://menus/menu_selection.gd" id="1_script"]
+
+[node name="MenuSelection" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -150.0
+offset_top = -100.0
+offset_right = 150.0
+offset_bottom = 100.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 20
+
+[node name="Label" type="Label" parent="Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Sélection du Jeu"
+horizontal_alignment = 1
+
+[node name="BtnPaletBreton" type="Button" parent="Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Palet Breton"
+
+[node name="BtnQuitter" type="Button" parent="Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Quitter"
+
+[connection signal="pressed" from="Panel/VBoxContainer/BtnPaletBreton" to="." method="_on_btn_palet_breton_pressed"]
+[connection signal="pressed" from="Panel/VBoxContainer/BtnQuitter" to="." method="_on_btn_quitter_pressed"]
